@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1020"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg">
+<title>Abū Maʿshar al-Falakī — Moteur traditionnel</title>
+<style>
+:root{--bg:#070b15;--panel:#10182a;--panel2:#17233a;--gold:#d8b66d;--text:#edf2ff;--muted:#aab6ce;--line:#2a3854;--ok:#54d38b;--bad:#ff7777}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#17233b,#070b15 58%);color:var(--text);font-family:system-ui,Segoe UI,Roboto,sans-serif}
+header{padding:25px 16px;text-align:center;border-bottom:1px solid var(--line)}h1{color:var(--gold);font-size:27px;margin:0}header p{color:var(--muted);margin:7px}
+nav{position:sticky;top:0;z-index:5;display:flex;gap:7px;overflow:auto;padding:10px;background:#070b15ed;border-bottom:1px solid var(--line)}
+button{cursor:pointer}.tab,.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:10px 13px;border-radius:10px;white-space:nowrap}.tab.active,.primary{background:var(--gold);color:#171208;border-color:var(--gold);font-weight:700}
+main{max-width:1150px;margin:auto;padding:16px}.page{display:none}.page.active{display:block}.card{background:linear-gradient(145deg,var(--panel),#0d1424);border:1px solid var(--line);border-radius:17px;padding:17px;margin-bottom:15px}
+h2,h3{color:var(--gold);margin-top:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}label{display:block;color:var(--muted);font-size:13px;margin:8px 0 5px}
+input,select{width:100%;padding:11px;border-radius:9px;border:1px solid var(--line);background:#080e1c;color:var(--text)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--gold)}
+.result{margin-top:14px;padding:14px;border-radius:12px;background:var(--panel2);border-left:4px solid var(--gold)}.ok{border-left-color:var(--ok)}.warn{border-left-color:var(--bad)}
+.note{color:var(--muted);line-height:1.55;font-size:13px}.formula{font-family:monospace;background:#080e1c;padding:11px;border-radius:9px;overflow:auto}.pill{display:inline-block;background:#263552;padding:4px 8px;border-radius:99px;margin:2px;font-size:12px}
+footer{text-align:center;color:var(--muted);padding:30px;font-size:12px}
+</style></head><body>
+<header><h1>✦ ABŪ MAʿSHAR AL-FALAKĪ ✦</h1><p>Moteur d’astrologie traditionnelle • encyclopédie • calculs pédagogiques</p></header>
+<nav id="nav">
+<button class="tab active" data-p="chart">Thème</button><button class="tab" data-p="judgment">Jugements</button>
+<button class="tab" data-p="timing">Prévisions</button><button class="tab" data-p="lots">Lots</button>
+<button class="tab" data-p="encyclo">Encyclopédie</button><button class="tab" data-p="about">Sources</button>
+</nav>
+<main>
+<section id="chart" class="page active">
+<div class="card"><h2>☉ Calculateur de naissance</h2>
+<p class="note">Saisis la date, l’heure locale et les coordonnées. Le moteur calcule une position solaire/lunaire et une approximation des positions planétaires à partir d’éléments orbitaux ; les maisons sont en signes entiers. Pour une recherche historique stricte, les positions doivent être vérifiées contre une éphéméride.</p>
+<div class="grid">
+<div><label>Date</label><input id="date" type="date" value="1990-01-01"></div><div><label>Heure locale</label><input id="time" type="time" value="12:00"></div>
+<div><label>Fuseau UTC (ex. Dakar = 0)</label><input id="tz" type="number" step=".5" value="0"></div>
+<div><label>Latitude (+ Nord / − Sud)</label><input id="lat" type="number" step=".01" value="14.7167"></div>
+<div><label>Longitude (+ Est / − Ouest)</label><input id="lon" type="number" step=".01" value="-17.4677"></div>
+<div><label>Secte</label><select id="sect"><option value="auto">Automatique</option><option value="day">Diurne</option><option value="night">Nocturne</option></select></div>
+</div>
+<div class="actions"><button class="btn primary" onclick="calculateChart()">Calculer le thème</button><button class="btn" onclick="saveChart()">Sauvegarder</button><button class="btn" onclick="clearSaved()">Effacer sauvegarde</button></div>
+<div id="chartResult"></div></div>
+</section>
+
+<section id="judgment" class="page">
+<div class="card"><h2>🔮 Moteur de jugement</h2><p class="note">Sélectionne une question. Le moteur identifie les maisons/significateurs et produit un jugement symbolique pondéré, avec les facteurs affichés.</p>
+<div class="grid"><div><label>Question</label><select id="topic">
+<option value="marriage">Mariage / union</option><option value="illness">Maladie</option><option value="children">Enfants</option><option value="wealth">Richesse</option><option value="career">Carrière / autorité</option><option value="travel">Voyage</option><option value="lost">Objet perdu</option></select></div>
+<div><label>Force du significateur principal</label><select id="sig"><option value="2">Forte</option><option value="0">Moyenne</option><option value="-2">Faible</option></select></div>
+<div><label>Réception</label><select id="rec"><option value="2">Favorable</option><option value="0">Neutre</option><option value="-2">Défavorable</option></select></div>
+<div><label>Aspect</label><select id="asp"><option value="2">Application favorable</option><option value="0">Aucune perfection claire</option><option value="-2">Application difficile</option></select></div>
+</div><div class="actions"><button class="btn primary" onclick="judge()">Juger</button></div><div id="judgmentResult"></div></div>
+</section>
+
+<section id="timing" class="page">
+<div class="card"><h2>⏳ Techniques temporelles</h2>
+<div class="grid">
+<div><label>Âge</label><input id="age" type="number" value="30"></div><div><label>Maison profectée de départ</label><input id="ph" type="number" min="1" max="12" value="1"></div>
+<div><label>Naissance</label><select id="fs"><option value="day">Diurne</option><option value="night">Nocturne</option></select></div>
+<div><label>Longitude natale (°) pour direction simplifiée</label><input id="dpos" type="number" value="0"></div>
+</div><div class="actions"><button class="btn primary" onclick="timingAll()">Calculer</button></div><div id="timingResult"></div></div>
+</section>
+
+<section id="lots" class="page">
+<div class="card"><h2>◈ Lots / Parts</h2><p class="note">Longitudes de 0° Bélier à 360°. Les formules peuvent varier selon secte et source.</p>
+<div class="grid"><div><label>Ascendant</label><input id="A" value="0" type="number"></div><div><label>Soleil</label><input id="S" value="0" type="number"></div><div><label>Lune</label><input id="M" value="0" type="number"></div><div><label>Vénus</label><input id="V" value="0" type="number"></div><div><label>Jupiter</label><input id="J" value="0" type="number"></div><div><label>Secte</label><select id="lotSect"><option value="day">Diurne</option><option value="night">Nocturne</option></select></div></div>
+<div class="actions"><button class="btn primary" onclick="lots()">Calculer</button></div><div id="lotsResult"></div></div></section>
+
+<section id="encyclo" class="page">
+<div class="card"><h2>📚 Encyclopédie</h2><div class="grid">
+<div class="card"><h3>Profections</h3><p class="note">Déplacement annuel d’un signe/maison ; le maître du signe activé devient un temps-lord majeur.</p></div>
+<div class="card"><h3>Distributions</h3><p class="note">Technique de directions à travers les termes/bounds, avec distributeur et partenaire.</p></div>
+<div class="card"><h3>Firdārs</h3><p class="note">Périodes planétaires sur un cycle traditionnel de 75 ans, diurne/nocturne.</p></div>
+<div class="card"><h3>Révolutions</h3><p class="note">Révolution solaire annuelle et révolutions mensuelles, à confronter à la nativité.</p></div>
+<div class="card"><h3>Transits</h3><p class="note">État des planètes en mouvement par rapport aux significateurs natals.</p></div>
+<div class="card"><h3>Maître de l’orbe</h3><p class="note">Technique temporelle liée aux heures planétaires et aux cycles.</p></div>
+<div class="card"><h3>Neuvièmes parties</h3><p class="note">Subdivision zodiacale traditionnelle attribuée à la transmission indienne.</p></div>
+<div class="card"><h3>Longévité</h3><p class="note">Chaîne historique hyleg → alchocoden → directions. L’application n’en déduit pas une date de décès.</p></div>
+</div></div>
+</section>
+
+<section id="about" class="page"><div class="card"><h2>📖 Sources et limites</h2>
+<p>Le moteur s’inspire de la structure des techniques décrites dans <i>On the Revolutions of the Years of Nativities</i> : profections, distributions à travers les termes, firdārs, transits, révolutions solaires et mensuelles, maître de l’orbe, neuvièmes parties et longévité. citeturn0search1turn0search4</p>
+<p class="note">Il s’agit d’un outil historique/pédagogique. Les jugements astrologiques ne constituent pas une preuve scientifique. Le module maladie ne doit jamais servir à diagnostiquer, traiter ou pronostiquer une maladie.</p></div></section>
+</main><footer>Abū Maʿshar al-Falakī • version moteur 2.0</footer>
+
+<script>
+const $=x=>document.getElementById(x), N=x=>Number(x)||0;
+const norm=x=>((x%360)+360)%360;
+const zodiac=x=>['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge','Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'][Math.floor(norm(x)/30)];
+const pos=x=>`${norm(x).toFixed(2)}° ${zodiac(x)} ${(norm(x)%30).toFixed(2)}°`;
+function jd(date,time,tz){let [Y,M,D]=date.split('-').map(Number),[h,m]=time.split(':').map(Number);let u=h+m/60-N(tz);if(M<=2){Y--;M+=12}let A=Math.floor(Y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(Y+4716))+Math.floor(30.6001*(M+1))+D+B-1524.5+u/24}
+function sunLon(J){let T=(J-2451545)/36525,L=norm(280.46646+36000.76983*T+0.0003032*T*T),M=norm(357.52911+35999.05029*T-0.0001537*T*T),Mr=M*Math.PI/180;return norm(L+(1.914602-0.004817*T-0.000014*T*T)*Math.sin(Mr)+(0.019993-0.000101*T)*Math.sin(2*Mr)+0.000289*Math.sin(3*Mr))}
+function moonLon(J){let T=(J-2451545)/36525;let L=norm(218.3164477+481267.88123421*T-0.0015786*T*T),Mm=norm(134.9633964+477198.8675055*T+0.0087414*T*T),Ms=norm(357.5291092+35999.0502909*T),D=norm(297.8501921+445267.1114034*T),F=norm(93.272095+483202.0175233*T);let r=x=>x*Math.PI/180;return norm(L+6.289*Math.sin(r(Mm))+1.274*Math.sin(r(2*D-Mm))+0.658*Math.sin(r(2*D))+0.214*Math.sin(r(2*Mm))-0.186*Math.sin(r(Ms))-0.059*Math.sin(r(2*D-2*Mm))-0.057*Math.sin(r(2*D-Ms-Mm))+0.053*Math.sin(r(2*D+Mm))+0.046*Math.sin(r(2*D-Ms))-0.041*Math.sin(r(Mm-Ms))-0.035*Math.sin(r(D))-0.031*Math.sin(r(Mm+Ms))-0.015*Math.sin(r(2*F-2*D))+0.011*Math.sin(r(Mm-4*D)))}
+function planetApprox(J,name){let d=J-2451543.5;let el={Mercure:[48.3313,7.0047,0.000005,29.1241,0.000010,-0.000000,0.387098,0,0,0.205635,0.000000,-0.000000,168.6562,4.0923344368,0,0],Venus:[76.6799,3.3946,0,54.8910,0,0,0.72333,0,0,0.006773,-0.000000,0,48.0052,1.6021302244,0,0],Mars:[49.5574,1.8497,0,286.5016,0,0,1.523688,0,0,0.093405,0.000000,0,18.6021,0.5240207766,0,0],Jupiter:[100.4542,1.3030,0,273.8777,0,0,5.20256,0,0,0.048498,0,0,19.8950,0.0830853001,0,0],Saturne:[113.6634,2.4886,0,339.3939,0,0,9.55475,0,0,0.055546,0,0,316.9670,0.0334442282,0,0]};let e=el[name];let Nn=e[0],i=e[1],w=e[3],a=e[6],ec=e[9],M=e[12]+e[13]*d;let E=norm(M)*Math.PI/180;for(let k=0;k<6;k++)E-= (E-ec*Math.sin(E)-norm(M)*Math.PI/180)/(1-ec*Math.cos(E));let xv=a*(Math.cos(E)-ec),yv=a*Math.sqrt(1-ec*ec)*Math.sin(E),v=Math.atan2(yv,xv),r0=Math.hypot(xv,yv),lon=norm((v+w*Math.PI/180)*180/Math.PI);let sun=sunLon(J),geo=norm(lon+180);if(name==='Mercure'||name==='Venus'){return norm(sun+(geo-sun)*0.9)} return geo}
+function ascendant(J,lat,lon){let T=(J-2451545)/36525,theta=norm(280.46061837+360.98564736629*(J-2451545)+lon),eps=(23.439291-0.0130042*T)*Math.PI/180,th=theta*Math.PI/180,ph=lat*Math.PI/180;let A=Math.atan2(Math.sin(th)*Math.cos(eps)+Math.tan(ph)*Math.sin(eps),-Math.cos(th))*180/Math.PI;return norm(A)}
+function calculateChart(){let J=jd($('date').value,$('time').value,$('tz').value),sun=sunLon(J),moon=moonLon(J),asc=ascendant(J,N($('lat').value),N($('lon').value));let sect=$('sect').value==='auto'?((moon<sun||norm(moon-sun)>180)?'day':'night'):$('sect').value;let planets={Soleil:sun,Lune:moon,Mercure:planetApprox(J,'Mercure'),Vénus:planetApprox(J,'Venus'),Mars:planetApprox(J,'Mars'),Jupiter:planetApprox(J,'Jupiter'),Saturne:planetApprox(J,'Saturne')};let rows=Object.entries(planets).map(([n,x])=>`<tr><td>${n}</td><td>${pos(x)}</td><td>${(Math.floor(norm(x-asc)/30)+1)}</td></tr>`).join('');let houses=Array.from({length:12},(_,i)=>`<span class="pill">${i+1}: ${zodiac(asc+i*30)}</span>`).join('');$('chartResult').innerHTML=`<div class="result ok"><h3>Thème calculé</h3><p>JD <b>${J.toFixed(5)}</b> • Ascendant <b>${pos(asc)}</b> • Secte <b>${sect==='day'?'diurne':'nocturne'}</b></p><h3>Planètes</h3><table><tr><th>Corps</th><th>Longitude</th><th>Maison entière</th></tr>${rows}</table><h3>Maisons en signes entiers</h3><p>${houses}</p><p class="note">Les longitudes planétaires hors Soleil/Lune sont des approximations orbitales de démonstration ; pour des calculs professionnels, vérifier avec une éphéméride astronomique.</p></div>`;localStorage.setItem('abuMasharLast',JSON.stringify({date:$('date').value,time:$('time').value,tz:$('tz').value,lat:$('lat').value,lon:$('lon').value}))}
+function judge(){let topic=$('topic').value,s=N($('sig').value)+N($('rec').value)+N($('asp').value),names={marriage:'Mariage / union',illness:'Maladie',children:'Enfants',wealth:'Richesse',career:'Carrière / autorité',travel:'Voyage',lost:'Objet perdu'},houses={marriage:'VII',illness:'I + VI',children:'V',wealth:'II',career:'X',travel:'IX',lost:'II + IV'};let v=s>=4?'fortement favorable':s>=2?'plutôt favorable':s<=-4?'fortement défavorable':s<=-2?'plutôt difficile':'mixte / incertain';$('judgmentResult').innerHTML=`<div class="result ${s>=2?'ok':s<=-2?'warn':''}"><h3>${names[topic]}</h3><p>Maisons principales : <b>${houses[topic]}</b></p><p>Indice des témoignages : <b>${s}</b> → <b>${v}</b>.</p><ul><li>Significateur : ${N($('sig').value)>0?'force':'faiblesse'}.</li><li>Réception : ${N($('rec').value)>0?'soutien':'absence/tension'}.</li><li>Aspect : ${N($('asp').value)>0?'perfection facilitée':'perfection absente ou difficile'}.</li></ul>${topic==='illness'?'<p class="note">⚠️ Ce jugement est historique et symbolique : il ne diagnostique pas une maladie et ne prédit pas son issue médicale.</p>':''}</div>`}
+function timingAll(){let age=N($('age').value),h=((N($('ph').value)-1+age%12)%12)+1;let years=[10,8,13,9,11,12,7,3,2],names=['Soleil','Vénus','Mercure','Lune','Saturne','Jupiter','Mars','Tête','Queue'],order=$('fs').value==='day'?[0,1,2,3,4,5,6,7,8]:[3,4,5,6,1,2,0,7,8],a=age,total=0,fd='';for(let i of order){if(a<total+years[i]){fd=names[i];break}total+=years[i]}let d=N($('dpos').value);$('timingResult').innerHTML=`<div class="result"><h3>Chronologie</h3><p>Profection : maison <b>${h}</b> • Firdār principal : <b>${fd}</b>.</p><p>Position de direction saisie : <b>${pos(d)}</b>.</p><table><tr><th>Planète</th><th>Durée</th></tr>${order.map(i=>`<tr><td>${names[i]}</td><td>${years[i]} ans</td></tr>`).join('')}</table></div>`}
+function lots(){let A=N($('A').value),S=N($('S').value),M=N($('M').value),V=N($('V').value),J=N($('J').value),day=$('lotSect').value==='day';let fortune=day?norm(A+M-S):norm(A+S-M),spirit=day?norm(A+S-M):norm(A+M-S),eros=norm(A+V-J);$('lotsResult').innerHTML=`<div class="result"><h3>Parts</h3><table><tr><th>Part</th><th>Formule</th><th>Position</th></tr><tr><td>Fortune</td><td>${day?'Asc + Lune − Soleil':'Asc + Soleil − Lune'}</td><td>${pos(fortune)}</td></tr><tr><td>Esprit</td><td>${day?'Asc + Soleil − Lune':'Asc + Lune − Soleil'}</td><td>${pos(spirit)}</td></tr><tr><td>Part relationnelle simplifiée</td><td>Asc + Vénus − Jupiter</td><td>${pos(eros)}</td></tr></table></div>`}
+function saveChart(){localStorage.setItem('abuMasharSaved',JSON.stringify({date:$('date').value,time:$('time').value,tz:$('tz').value,lat:$('lat').value,lon:$('lon').value}));alert('Thème sauvegardé sur cet appareil.')}
+function clearSaved(){localStorage.removeItem('abuMasharSaved');alert('Sauvegarde effacée.')}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(b.dataset.p).classList.add('active');document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
+let saved=JSON.parse(localStorage.getItem('abuMasharSaved')||'null');if(saved){for(let k of ['date','time','tz','lat','lon'])if(saved[k]!=null)$(k).value=saved[k]}
+</script></body></html>

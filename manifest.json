@@ -1,0 +1,16 @@
+{
+  "name": "Abū Maʿshar al-Falakī — Moteur traditionnel",
+  "short_name": "Abū Maʿshar",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#070b15",
+  "theme_color": "#0b1020",
+  "description": "Encyclopédie et moteur pédagogique des techniques traditionnelles attribuées à Abū Maʿshar.",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
